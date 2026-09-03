@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نور المعرفة - الموسوعة الإسلامية الذكية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Amiri:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #050b14;
+            --gold: #D4AF37;
+            --gold-light: #F3E5AB;
+            --accent-teal: #00B4D8;
+            --text-main: #FFFFFF;
+            --text-muted: rgba(255, 255, 255, 0.7);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            background-color: var(--primary-dark);
+        }
+
+        .bg-video {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(3, 11, 20, 0.95), rgba(11, 29, 58, 0.9));
+            z-index: -1;
+        }
+
+        .screen {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+            height: 100vh;
+            max-height: 850px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            display: none;
+            backdrop-filter: blur(12px);
+            background: rgba(5, 15, 30, 0.8);
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .islamic-frame {
+            position: relative;
+        }
+        .islamic-frame::after {
+            content: '﴿ ﷽ ﴾';
+            display: block;
+            font-family: 'Amiri', serif;
+            color: var(--gold);
+            font-size: 14px;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(212,175,55,0.4);
+        }
+
+        .game-title {
+            color: var(--gold-light);
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+        }
+
+        .input-group {
+            position: relative;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            box-shadow: 0 0 0 2px var(--gold);
+        }
+
+        .input-group svg {
+            position: absolute;
+            right: 15px; top: 50%;
+            transform: translateY(-50%);
+            width: 18px; height: 18px;
+            fill: #0C2B4E;
+        }
+
+        .main-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #1B4965, #112A46);
+            color: white;
+            border: 1.5px solid var(--gold);
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: 0.3s;
+        }
+
+        .main-btn:hover {
+            background: linear-gradient(135deg, #235d82, #1B4965);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .toggle-link {
+            margin-top: 12px;
+            color: var(--text-muted);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .toggle-link:hover { color: var(--text-main); }
+
+        #formMessage {
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .welcome-banner {
+            width: 100%;
+            background: rgba(27, 73, 101, 0.4);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-text h3 { color: var(--text-main); font-size: 15px; font-weight: 700; text-align: right; }
+        .welcome-text p { color: var(--text-muted); font-size: 10px; text-align: right; }
+
+        .score-badge {
+            background: rgba(212, 175, 55, 0.15);
+            border: 1px solid var(--gold);
+            border-radius: 12px;
+            padding: 5px 10px;
+            color: var(--gold-light);
+            font-size: 13px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .score-star-icon {
+            width: 14px;
+            height: 14px;
+            fill: var(--gold);
+        }
+
+        .sections-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 52vh;
+            overflow-y: auto;
+            padding: 2px;
+        }
+        .sections-container::-webkit-scrollbar { width: 4px; }
+        .sections-container::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+
+        .section-card {
+            display: flex;
+            align-items: center;
+            background: rgba(18, 40, 65, 0.65);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 14px;
+            padding: 10px 14px;
+            color: white;
+            transition: 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-card:hover {
+            background: rgba(27, 73, 101, 0.85);
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .section-icon-box {
+            width: 38px; height: 38px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 10px;
+            display: flex; justify-content: center; align-items: center;
+            margin-left: 12px; flex-shrink: 0;
+        }
+        .section-icon-box svg { width: 20px; height: 20px; fill: var(--gold-light); }
+
+        .section-info { text-align: right; flex-grow: 1; }
+        .section-title { font-size: 14px; font-weight: bold; color: var(--text-main); }
+        .section-desc { font-size: 10px; color: var(--text-muted); }
+
+        .badge-unlimited {
+            background: rgba(0, 180, 216, 0.15);
+            color: var(--accent-teal);
+            border: 1px solid rgba(0, 180, 216, 0.35);
+            font-size: 9px; padding: 1px 6px;
+            border-radius: 5px; font-weight: bold;
+            margin-top: 3px; display: inline-block;
+        }
+
+        .game-box {
+            width: 100%;
+            background: rgba(12, 25, 45, 0.9);
+            border: 2px solid var(--gold);
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(212,175,55,0.15), 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .game-box::before {
+            content: '';
+            position: absolute;
+            top: 6px; right: 6px; left: 6px; bottom: 6px;
+            border: 1px dashed rgba(212, 175, 55, 0.4);
+            border-radius: 12px;
+            pointer-events: none;
+        }
+
+        .ornament-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: -4px;
+        }
+        .ornament-line {
+            height: 1px;
+            flex-grow: 1;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+        }
+        .ornament-star {
+            width: 12px;
+            height: 12px;
+            fill: var(--gold);
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gold-light);
+            font-size: 12px;
+            font-weight: bold;
+            border-bottom: 1px solid rgba(212,175,55,0.2);
+            padding-bottom: 6px;
+            z-index: 1;
+        }
+
+        .question-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            text-align: right;
+            line-height: 1.6;
+            min-height: 50px;
+            z-index: 1;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1;
+        }
+
+        .option-btn {
+            background: rgba(27, 73, 101, 0.6);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: white;
+            font-size: 13px;
+            text-align: right;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-btn:hover {
+            background: rgba(0, 180, 216, 0.35);
+            border-color: var(--accent-teal);
+        }
+
+        .option-btn.correct {
+            background: rgba(40, 167, 69, 0.85) !important;
+            border-color: #28a745 !important;
+        }
+
+        .option-btn.wrong {
+            background: rgba(220, 53, 69, 0.85) !important;
+            border-color: #dc3545 !important;
+        }
+
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 5px;
+        }
+
+        .developer-badge {
+            margin-top: auto;
+            display: flex; align-items: center;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 5px 12px; border-radius: 30px;
+            text-decoration: none; transition: 0.3s;
+        }
+        .developer-badge:hover { background: rgba(0, 0, 0, 0.8); border-color: var(--gold); }
+        .instagram-icon {
+            width: 20px; height: 20px;
+            background: linear-gradient(45deg, #833AB4, #FD1D1D, #FCB045);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            margin-left: 6px;
+        }
+        .instagram-icon svg { width: 10px; height: 10px; fill: white; }
+        .developer-info .username { color: white; font-size: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <video autoplay muted loop class="bg-video">
+        <source src="Https://videotourl.com/videos/1788423800067-5816b89b-88cb-4390-85da-97862071cc3f.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- 1. شاشة تسجيل الدخول -->
+    <div id="authScreen" class="screen active islamic-frame">
+        <div style="margin-top: 10px;">
+            <svg viewBox="0 0 24 24" style="width:45px; height:45px; fill:var(--gold); filter:drop-shadow(0 0 8px rgba(212,175,55,0.5));"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.82.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+            <h1 id="formTitle" style="color:white; font-size:16px; font-weight:600; margin-bottom:8px;">تسجيل الدخول</h1>
+        </div>
+
+        <div class="game-title">نور المعرفة الذكي</div>
+        <div id="formMessage"></div>
+
+        <form id="authForm" onsubmit="handleAuth(event);" style="width: 100%;">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="اسم المستخدم" required>
+                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+                <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            </div>
+            <button type="submit" id="submitBtn" class="main-btn" onclick="playSound('click')">تسجيل الدخول</button>
+        </form>
+
+        <div id="toggleText" class="toggle-link" onclick="toggleMode(); playSound('click');">ليس لديك حساب؟ إنشاء حساب جديد</div>
+        <div style="margin-top: auto;"></div>
+    </div>
+
+    <!-- 2. شاشة الأقسام الرئيسية -->
+    <div id="sectionsScreen" class="screen islamic-frame">
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h3 id="welcomeUser">أهلاً بك</h3>
+                <p>تحديات إسلامية لا تنتهي</p>
+            </div>
+            <div class="score-badge">
+                <svg class="score-star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <span id="userScore">120</span>
+            </div>
+        </div>
+
+        <div class="sections-container">
+            <div class="section-card" onclick="startCategoryGame('القرآن الكريم')">
+                <div class="section-icon-box"><svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg></div>
+                <div class="section-info">
+                    <div class="section-title">إكمال الكلمات القرآنية</div>
+                    <div class="section-desc">آيات متجددة لاختبار الذاكرة</div>
+                    <span class="badge-unlimited">غير محدود ♾️</span>
+                </div>
+            </div>
+
+            <div class="section-card" onclick="startCategoryGame('الحديث الشريف')">
+                <div class="section-icon-box"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+                <div class="section-info">
+                    <div class="section-title">متون الحديث الشريف</div>
+                    <div class="section-desc">أكمل الأحاديث النبوية الصحيحة</div>
+                    <span class="badge-unlimited">غير محدود ♾️</span>
+                </div>
+            </div>
+
+            <div class="section-card" onclick="startCategoryGame('فقه العبادات')">
+                <div class="section-icon-box"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg></div>
+                <div class="section-info">
+                    <div class="section-title">فقه العبادات اليومية</div>
+                    <div class="section-desc">أحكام الصيام والصلاة والطهارة</div>
+                    <span class="badge-unlimited">غير محدود ♾️</span>
+                </div>
+            </div>
+
+            <div class="section-card" onclick="startCategoryGame('السيرة والتاريخ')">
+                <div class="section-icon-box"><svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg></div>
+                <div class="section-info">
+                    <div class="section-title">السيرة النبوية والتاريخ</div>
+                    <div class="section-desc">محطات من تاريخنا الإسلامي</div>
+                    <span class="badge-unlimited">غير محدود ♾️</span>
+                </div>
+            </div>
+
+            <div class="section-card" onclick="startCategoryGame('لغة الضاد')">
+                <div class="section-icon-box"><svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8V4h12v12z"/></svg></div>
+                <div class="section-info">
+                    <div class="section-title">ألغاز لغة الضاد والبلاغة</div>
+                    <div class="section-desc">معاني المفردات والنحو</div>
+                    <span class="badge-unlimited">غير محدود ♾️</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="main-btn" onclick="logout()" style="margin-top: 10px; background: rgba(139, 0, 0, 0.6); border-color: #ff4d4d; padding: 8px; font-size: 13px;">تسجيل الخروج</button>
+        
+        <a href="https://instagram.com/sky_mohax_" target="_blank" class="developer-badge" style="margin-top: 8px;">
+            <div class="instagram-icon"><svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></div>
+            <div class="developer-info"><span class="username">Sky_mohax_</span></div>
+        </a>
+    </div>
+
+    <!-- 3. شاشة التحدي واللعب التفصيلية مع الزخرفة الفخمة -->
+    <div id="gameScreen" class="screen islamic-frame">
+        <div class="welcome-banner">
+            <div class="welcome-text">
+                <h3 id="currentCategoryTitle">القسم</h3>
+                <p>تحدي بلا حدود ♾️</p>
+            </div>
+            <div class="score-badge">
+                <svg class="score-star-icon" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <span id="gameScore">120</span>
+            </div>
+        </div>
+
+        <div class="game-box">
+            <div class="ornament-header">
+                <div class="ornament-line"></div>
+                <svg class="ornament-star" viewBox="0 0 24 24"><path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9Z"/></svg>
+                <div class="ornament-line"></div>
+            </div>
+
+            <div class="question-header">
+                <span id="questionCounter">السؤال 1</span>
+                <span style="color: var(--accent-teal);">تحدي متجدد</span>
+            </div>
+            <div class="question-text" id="questionText">جاري تحميل السؤال...</div>
+            <div class="options-grid" id="optionsContainer"></div>
+        </div>
+
+        <div class="game-footer" style="width:100%; margin-top: auto;">
+            <button class="main-btn" onclick="backToSections()" style="background: rgba(27, 73, 101, 0.8); width: 48%; padding: 10px;">العودة للأقسام</button>
+            <button class="main-btn" onclick="nextQuestion()" style="width: 48%; padding: 10px;">السؤال التالي ➡️</button>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.08);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // بنك أسئلة موسع وغني لكل قسم لتجنب التكرار
+        const database = {
+            'القرآن الكريم': [
+                { q: "أكمل الآية الكريمة: (إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوْا وَالَّذِينَ هُم...)", options: ["مُحْسِنُونَ", "صَابِرُونَ", "مُؤْمِنُونَ", "تَابُونَ"], correct: 0 },
+                { q: "ما هي السورة التي تسمى 'سنام القرآن' وتعدل ثلث القرآن؟", options: ["سورة يس", "سورة الإخلاص", "سورة الملك", "سورة البقرة"], correct: 1 },
+                { q: "كم عدد سور القرآن الكريم؟", options: ["112 سورة", "114 سورة", "120 سورة", "108 سورة"], correct: 1 },
+                { q: "ما هي أطول سورة في القرآن الكريم؟", options: ["سورة آل عمران", "سورة البقرة", "سورة النساء", "سورة المائدة"], correct: 1 },
+                { q: "ما هي السورة التي أطلق عليها 'قلب القرآن'؟", options: ["سورة يس", "سورة الرحمن", "سورة الملك", "سورة الواقعة"], correct: 0 },
+                { q: "كم عدد السور المكية في القرآن الكريم تقريباً؟", options: ["86 سورة", "28 سورة", "114 سورة", "50 سورة"], correct: 0 }
+            ],
+            'الحديث الشريف': [
+                { q: "أكمل الحديث: (إنما الأعمال بالنيات وإنما لكل امرئ...)", options: ["ما عمل", "ما نوى", "ما كسب", "ما احتسب"], correct: 1 },
+                { q: "من هو راوي أكثر الأحاديث النبوية الشريفة؟", options: ["أبو هريرة رضي الله عنه", "عمر بن الخطاب", "عائشة أم المؤمنين", "أنس بن مالك"], correct: 0 },
+                { q: "ما هو أصح كتاب بعد القرآن الكريم باتفاق أهل السنة؟", options: ["موطأ مالك", "صحيح البخاري", "صحيح مسلم", "سنن الترمذي"], correct: 1 },
+                { q: "من هو صاحب كتاب 'رياض الصالحين'؟", options: ["الإمام النووي", "الإمام البخاري", "ابن تيمية", "الإمام الشافعي"], correct: 0 },
+                { q: "ما هو الحديث الذي يسمى 'حديث جبريل' العظيم؟", options: ["حديث الأعمال بالنيات", "حديث سؤال الإسلام والإيمان والإحسان", "حديث تحريم الظلم", "حديث ستر المسلم"], correct: 1 }
+            ],
+            'فقه العبادات': [
+                { q: "ما هو الركن الأعظم في الحج؟", options: ["طواف الوداع", "المبيت بمزدلفة", "وقوف عرفة", "رمي الجمار"], correct: 2 },
+                { q: "كم صلاة فرضت في ليلة الإسراء والمعراج ابتداءً؟", options: ["خمس صلوات", "خمسون صلاة", "عشر صلوات", "ثلاثون صلاة"], correct: 1 },
+                { q: "ما حكم صيام أيام التشريق؟", options: ["مستحب", "واجب", "محرم", "مكروه تنزيهاً"], correct: 2 },
+                { q: "ما هو النصاب المقرّر لوجوب الزكاة في الذهب؟", options: ["85 جراماً", "50 جراماً", "100 جراماً", "200 جراماً"], correct: 0 },
+                { q: "ما هي صلاة الاستسقاء؟", options: ["صلاة لطلب المطر", "صلاة عند الكسوف", "صلاة شكر النعم", "صلاة الخوف"], correct: 0 }
+            ],
+            'السيرة والتاريخ': [
+                { q: "في أي عام هجري وقعت غزوة بدر الكبرى؟", options: ["العام الأول الهجري", "العام الثاني الهجري", "العام الثالث الهجري", "العام الرابع الهجري"], correct: 1 },
+                { q: "من هو الصحابي الذي لُقب بـ 'أسد الله'؟", options: ["خالد بن الوليد", "حمزة بن عبد المطلب", "علي بن أبي طالب", "عمر بن الخطاب"], correct: 1 },
+                { q: "ما اسم ناقة النبي صلى الله عليه وسلم يوم الهجرة؟", options: ["القصواء", "الجدعاء", "البراق", "الشهباء"], correct: 0 },
+                { q: "في أي عام توفيت أم المؤمنين خديجة رضي الله عنها (عام الحزن)؟", options: ["قبل الهجرة بثلاث سنوات", "بعد الهجرة بسنة", "في عام الفتح", "سنة 5 هجري"], correct: 0 },
+                { q: "من هو أول سفير في الإسلام؟", options: ["مصعب بن عمير", "عثمان بن عفان", "جعفر بن أبي طالب", "بلال بن رباح"], correct: 0 }
+            ],
+            'لغة الضاد': [
+                { q: "ما معنى كلمة 'الرَّقِيم' المذكورة في سورة الكهف؟", options: ["الكلب", "اللوح المكتوب فيه أسماء الفتية", "الكهف العظيم", "الجبل المرتفع"], correct: 1 },
+                { q: "ما هو ضد كلمة 'البخيل' في اللغة العربية؟", options: ["الفقير", "الكريم والجواد", "المسرف", "القنوع"], correct: 1 },
+                { q: "ما إعراب الفعل المضارع إذا سبقه حرف ناصب مثل 'لن'؟", options: ["مجزوم وعلامة جزمه السكون", "منصوب وعلامة نصبه الفتحة", "مرفوع وعلامة رفعه الضمة", "مبني على الفتح"], correct: 1 },
+                { q: "ما هو جمع كلمة 'عصا'؟", options: ["عصي وعصوات", "عصي فقط", "عصوات فقط", "أعصي"], correct: 0 },
+                { q: "ما هو الميزان الصرفي لكلمة 'كَتَبَ'؟", options: ["فَعَلَ", "فَعِيل", "مَفْعُول", "فَاعِل"], correct: 0 }
+            ]
+        };
+
+        let currentCat = '';
+        let availableQuestions = [];
+        let questionCounterNum = 1;
+        let currentQObj = null;
+        let score = 120;
+        let isRegisterMode = false;
+
+        window.onload = function() {
+            const activeUser = localStorage.getItem('islamicAppActiveUser');
+            if (activeUser) {
+                showSectionsScreen(activeUser);
+            } else {
+                document.getElementById('authScreen').classList.add('active');
+            }
+        };
+
+        function toggleMode() {
+            isRegisterMode = !isRegisterMode;
+            const formTitle = document.getElementById('formTitle');
+            const submitBtn = document.getElementById('submitBtn');
+            const toggleText = document.getElementById('toggleText');
+            document.getElementById('formMessage').textContent = "";
+
+            if (isRegisterMode) {
+                formTitle.textContent = "إنشاء حساب جديد";
+                submitBtn.textContent = "ابدأ التحدي";
+                toggleText.textContent = "لديك حساب بالفعل؟ تسجيل الدخول";
+            } else {
+                formTitle.textContent = "تسجيل الدخول";
+                submitBtn.textContent = "تسجيل الدخول";
+                toggleText.textContent = "ليس لديك حساب؟ إنشاء حساب جديد";
+            }
+        }
+
+        function handleAuth(event) {
+            event.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+            const msg = document.getElementById('formMessage');
+            let savedUsers = JSON.parse(localStorage.getItem('islamicAppUsers')) || {};
+
+            if (isRegisterMode) {
+                if (savedUsers[user]) {
+                    msg.style.color = "#ff4d4d"; msg.textContent = "اسم المستخدم موجود مسبقاً!";
+                } else {
+                    savedUsers[user] = pass;
+                    localStorage.setItem('islamicAppUsers', JSON.stringify(savedUsers));
+                    localStorage.setItem('islamicAppActiveUser', user);
+                    showSectionsScreen(user);
+                }
+            } else {
+                if (savedUsers[user] && savedUsers[user] === pass) {
+                    localStorage.setItem('islamicAppActiveUser', user);
+                    showSectionsScreen(user);
+                } else {
+                    msg.style.color = "#ff4d4d"; msg.textContent = "خطأ في بيانات الدخول!";
+                }
+            }
+        }
+
+        function showSectionsScreen(username) {
+            document.getElementById('authScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('welcomeUser').textContent = `أهلاً بك، ${username}`;
+            document.getElementById('sectionsScreen').classList.add('active');
+            document.getElementById('userScore').textContent = score;
+        }
+
+        function logout() {
+            playSound('click');
+            localStorage.removeItem('islamicAppActiveUser');
+            document.getElementById('sectionsScreen').classList.remove('active');
+            document.getElementById('authScreen').classList.add('active');
+            document.getElementById('authForm').reset();
+        }
+
+        // خوارزمية سحب الأسئلة بدون تكرار خلط عشوائي متجدد
+        function startCategoryGame(categoryName) {
+            playSound('click');
+            currentCat = categoryName;
+            questionCounterNum = 1;
+            
+            // نسخ وتعبئة الأسئلة وخلطها عشوائياً
+            availableQuestions = [...database[categoryName]];
+            shuffleArray(availableQuestions);
+
+            document.getElementById('sectionsScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+            document.getElementById('currentCategoryTitle').textContent = categoryName;
+            document.getElementById('gameScore').textContent = score;
+            
+            loadNextQuestion();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadNextQuestion() {
+            // إذا نفذت الأسئلة، نعيد تعبئة القائمة وخلطها مجدداً بلا انقطاع
+            if (availableQuestions.length === 0) {
+                availableQuestions = [...database[currentCat]];
+                shuffleArray(availableQuestions);
+            }
+
+            currentQObj = availableQuestions.pop(); // سحب سؤال فريد وإزالته مؤقتاً لتجنب تكراره
+
+            document.getElementById('questionCounter').textContent = `السؤال (${questionCounterNum})`;
+            document.getElementById('questionText').textContent = currentQObj.q;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            currentQObj.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, currentQObj.correct, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selected, correct, btnElement) {
+            const allBtns = document.querySelectorAll('.option-btn');
+            allBtns.forEach(b => b.onclick = null);
+
+            if (selected === correct) {
+                btnElement.classList.add('correct');
+                score += 10;
+                playSound('correct');
+            } else {
+                btnElement.classList.add('wrong');
+                allBtns[correct].classList.add('correct');
+                score = Math.max(0, score - 5);
+                playSound('wrong');
+            }
+            document.getElementById('gameScore').textContent = score;
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            questionCounterNum++;
+            loadNextQuestion();
+        }
+
+        function backToSections() {
+            playSound('click');
+            showSectionsScreen(localStorage.getItem('islamicAppActiveUser') || 'زائر');
+        }
+    </script>
+</body>
+</html>
